@@ -1,12 +1,13 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import 'package:walletconnect_flutter_v2/apis/core/store/i_store.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/constants.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/errors.dart';
 
 class SharedPrefsStores implements IStore<Map<String, dynamic>> {
-  late SharedPreferences prefs;
+  // late SharedPreferences prefs;
   bool _initialized = false;
 
   final Map<String, Map<String, dynamic>> _map;
@@ -24,6 +25,7 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
   String get storagePrefix => WalletConnectConstants.CORE_STORAGE_PREFIX;
 
   final bool memoryStore;
+  late Box<dynamic> box;
 
   SharedPrefsStores({
     Map<String, Map<String, dynamic>>? defaultValue,
@@ -36,11 +38,14 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
     if (_initialized) {
       return;
     }
+    var encryptionKey =
+        base64Url.decode('8nZsmiFW9ftVgNi6luNZTM1hZqT5R0QV10EFcH2imdw=');
+    box = await Hive.openBox('walletconnect',
+        encryptionCipher: HiveAesCipher(encryptionKey));
 
-    if (!memoryStore) {
-      prefs = await SharedPreferences.getInstance();
-    }
-
+    // if (!memoryStore) {
+    //   prefs = await SharedPreferences.getInstance();
+    // }
     _initialized = true;
   }
 
@@ -68,7 +73,7 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
     if (memoryStore) {
       return _map.containsKey(keyWithPrefix);
     }
-    return prefs.containsKey(keyWithPrefix);
+    return box.containsKey(keyWithPrefix);
   }
 
   /// Gets all of the values of the store
@@ -117,8 +122,8 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
       return null;
     }
 
-    if (prefs.containsKey(key)) {
-      final value = prefs.getString(key)!;
+    if (box.containsKey(key)) {
+      final value = box.get(key)!;
       return jsonDecode(value);
     } else {
       throw Errors.getInternalError(Errors.NO_MATCHING_KEY);
@@ -132,7 +137,7 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
 
     try {
       final stringValue = jsonEncode(value);
-      await prefs.setString(key, stringValue);
+      await box.put(key, stringValue);
     } on Exception catch (e) {
       throw Errors.getInternalError(
         Errors.MISSING_OR_INVALID,
@@ -145,7 +150,7 @@ class SharedPrefsStores implements IStore<Map<String, dynamic>> {
     if (memoryStore) {
       return;
     }
-    await prefs.remove(key);
+    await box.delete(key);
   }
 
   String _addPrefix(String key) {
