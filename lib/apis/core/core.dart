@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:walletconnect_flutter_v2/apis/core/crypto/crypto.dart';
 import 'package:walletconnect_flutter_v2/apis/core/crypto/i_crypto.dart';
@@ -22,6 +26,7 @@ import 'package:walletconnect_flutter_v2/apis/core/pairing/i_pairing.dart';
 import 'package:walletconnect_flutter_v2/apis/core/store/shared_prefs_store.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/constants.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/walletconnect_utils.dart';
+import 'package:path_provider/path_provider.dart' as pathProvider;
 
 class Core implements ICore {
   @override
@@ -151,5 +156,12 @@ class Core implements ICore {
     await expirer.init();
     // await history.init();
     await pairing.init();
+
+    if (!kIsWeb) {
+      Directory directory =
+          await pathProvider.getApplicationDocumentsDirectory();
+      Hive.init(directory.path);
+    }
   }
+  
 }
