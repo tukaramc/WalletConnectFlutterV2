@@ -869,9 +869,9 @@ class SignEngine implements ISignEngine {
     JsonRpcRequest payload,
   ) async {
     try {
-      core.logger.v(
-        '_onSessionProposeRequest, topic: $topic, payload: $payload',
-      );
+      // core.logger.v(
+      //   '_onSessionProposeRequest, topic: $topic, payload: $payload',
+      // );
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
       await _isValidConnect(
         requiredNamespaces: proposeRequest.requiredNamespaces,
@@ -901,9 +901,9 @@ class SignEngine implements ISignEngine {
           );
         } on WalletConnectError catch (err) {
           // If they aren't, send an error
-          core.logger.v(
-            '_onSessionProposeRequest WalletConnectError: $err',
-          );
+          // core.logger.v(
+          //   '_onSessionProposeRequest WalletConnectError: $err',
+          // );
           await core.pairing.sendError(
             payload.id,
             topic,
