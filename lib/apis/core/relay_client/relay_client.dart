@@ -170,20 +170,20 @@ class RelayClient implements IRelayClient {
 
   @override
   Future<void> connect({String? relayUrl}) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    if (isConnected) {
-      return;
-    }
-    // print('connecting to relay server');
+    // if (isConnected) {
+    //   return;
+    // }
+    // // print('connecting to relay server');
 
-    if (_active) {
-      await disconnect();
-    }
-    await _createJsonRPCProvider();
-    if (_heartbeatTimer == null) {
-      _startHeartbeat();
-    }
+    // if (_active) {
+    //   await disconnect();
+    // }
+    // await _createJsonRPCProvider();
+    // if (_heartbeatTimer == null) {
+    //   _startHeartbeat();
+    // }
   }
 
   @override
