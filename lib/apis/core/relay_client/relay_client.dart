@@ -170,27 +170,27 @@ class RelayClient implements IRelayClient {
 
   @override
   Future<void> connect({String? relayUrl}) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    if (isConnected) {
-      return;
-    }
-    // print('connecting to relay server');
+    // if (isConnected) {
+    //   return;
+    // }
+    // // print('connecting to relay server');
 
-    if (_active) {
-      await disconnect();
-    }
-    await _createJsonRPCProvider();
-    if (_heartbeatTimer == null) {
-      _startHeartbeat();
-    }
+    // if (_active) {
+    //   await disconnect();
+    // }
+    // await _createJsonRPCProvider();
+    // if (_heartbeatTimer == null) {
+    //   _startHeartbeat();
+    // }
   }
 
   @override
   Future<void> disconnect() async {
     _checkInitialized();
 
-    core.logger.v('RelayClient: Disconnecting from relay');
+    // core.logger.v('RelayClient: Disconnecting from relay');
 
     _active = false;
 
@@ -209,7 +209,7 @@ class RelayClient implements IRelayClient {
   Future<void> _createJsonRPCProvider() async {
     _active = true;
     var auth = await core.crypto.signJWT(core.relayUrl);
-    core.logger.v('Signed JWT: $auth');
+    // core.logger.v('Signed JWT: $auth');
     try {
       final String url = WalletConnectUtils.formatRelayRpcUrl(
         protocol: WalletConnectConstants.CORE_PROTOCOL,
@@ -235,7 +235,7 @@ class RelayClient implements IRelayClient {
         httpClient: httpClient,
       );
 
-      core.logger.v('Initializing WebSocket with $url');
+      // core.logger.v('Initializing WebSocket with $url');
       await socket!.init();
 
       jsonRPC = Peer(
@@ -322,7 +322,7 @@ class RelayClient implements IRelayClient {
       Duration(seconds: heartbeatPeriod),
       (timer) async {
         if (jsonRPC != null && jsonRPC!.isClosed) {
-          core.logger.v('Heartbeat, WebSocket closed, reconnecting');
+          // core.logger.v('Heartbeat, WebSocket closed, reconnecting');
           await connect();
         }
       },
@@ -336,10 +336,10 @@ class RelayClient implements IRelayClient {
   /// JSON RPC MESSAGE HANDLERS
 
   Future<bool> handlePublish(String topic, String message) async {
-    core.logger.v('Handling Publish Message: $topic, $message');
+    // core.logger.v('Handling Publish Message: $topic, $message');
     // If we want to ignore the message, stop
     if (await _shouldIgnoreMessageEvent(topic, message)) {
-      core.logger.w('Ignoring Message: $topic, $message');
+      // core.logger.w('Ignoring Message: $topic, $message');
       return false;
     }
 
@@ -392,7 +392,7 @@ class RelayClient implements IRelayClient {
       );
     } on StateError catch (_) {
       // Reconnect to the websocket
-      core.logger.v('StateError, reconnecting: $_');
+      // core.logger.v('StateError, reconnecting: $_');
       await connect();
       response = await jsonRPC!.sendRequest(
         method,

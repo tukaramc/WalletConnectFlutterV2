@@ -7,4 +7,9 @@ abstract class ISessions extends IGenericStore<SessionData> {
     int? expiry,
     Map<String, Namespace>? namespaces,
   });
+  // create by chetan
+  Future<void> updateCurrentAccount(
+    String topic, {
+    dynamic currentAccount,
+  });
 }

@@ -21,12 +21,14 @@ dependencies:
   # json_rpc_2: ^3.0.2
   event: ^2.1.2
   stream_channel: ^2.1.0
-  shared_preferences: ^2.0.17
+  # shared_preferences: ^2.0.17
   universal_io: ^2.0.4
   stack_trace: ^1.10.0
   web3dart: ^2.5.1
   logger: ^1.4.0
   freezed_annotation: ^2.2.0
+  hive: ^2.2.3
+  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:

@@ -385,9 +385,9 @@ class Pairing implements IPairing {
     int? ttl,
     EncodeOptions? encodeOptions,
   }) async {
-    core.logger.v(
-      'pairing sendResult, id: $id topic: $topic, method: $method, params: $params, ttl: $ttl',
-    );
+    // core.logger.v(
+    //   'pairing sendResult, id: $id topic: $topic, method: $method, params: $params, ttl: $ttl',
+    // );
 
     final Map<String, dynamic> payload = JsonRpcUtils.formatJsonRpcRequest(
       method,
@@ -456,9 +456,9 @@ class Pairing implements IPairing {
     dynamic result, {
     EncodeOptions? encodeOptions,
   }) async {
-    core.logger.v(
-      'pairing sendResult, id: $id topic: $topic, method: $method, result: $result',
-    );
+    // core.logger.v(
+    //   'pairing sendResult, id: $id topic: $topic, method: $method, result: $result',
+    // );
     final Map<String, dynamic> payload =
         JsonRpcUtils.formatJsonRpcResponse<dynamic>(
       id,
@@ -491,9 +491,9 @@ class Pairing implements IPairing {
     JsonRpcError error, {
     EncodeOptions? encodeOptions,
   }) async {
-    core.logger.v(
-      'pairing sendError, id: $id topic: $topic, method: $method, error: $error',
-    );
+    // core.logger.v(
+    //   'pairing sendError, id: $id topic: $topic, method: $method, error: $error',
+    // );
 
     final Map<String, dynamic> payload = JsonRpcUtils.formatJsonRpcError(
       id,
