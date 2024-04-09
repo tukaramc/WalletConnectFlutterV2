@@ -187,38 +187,38 @@ class RelayClient implements IRelayClient {
   /// PRIVATE FUNCTIONS ///
 
   Future<void> _connect({String? relayUrl}) async {
-    core.logger.t('RelayClient Internal: Connecting to relay');
-    if (isConnected) {
-      return;
-    }
+    // core.logger.t('RelayClient Internal: Connecting to relay');
+    // if (isConnected) {
+    //   return;
+    // }
 
-    // If we have tried connecting to the relay before, disconnect
-    if (_active) {
-      await _disconnect();
-    }
+    // // If we have tried connecting to the relay before, disconnect
+    // if (_active) {
+    //   await _disconnect();
+    // }
 
-    // Connect and track the connection progress, then start the heartbeat
-    _connectingFuture = _createJsonRPCProvider();
-    await _connectingFuture;
-    _subscribeToHeartbeat();
+    // // Connect and track the connection progress, then start the heartbeat
+    // _connectingFuture = _createJsonRPCProvider();
+    // await _connectingFuture;
+    // _subscribeToHeartbeat();
 
-    // If it didn't connect, and the relayUrl is the default,
-    // recursively try the fallback
-    core.relayUrl = relayUrl ?? core.relayUrl;
-    if (!isConnected &&
-        core.relayUrl == WalletConnectConstants.DEFAULT_RELAY_URL) {
-      core.relayUrl = WalletConnectConstants.FALLBACK_RELAY_URL;
-      await _connect();
+    // // If it didn't connect, and the relayUrl is the default,
+    // // recursively try the fallback
+    // core.relayUrl = relayUrl ?? core.relayUrl;
+    // if (!isConnected &&
+    //     core.relayUrl == WalletConnectConstants.DEFAULT_RELAY_URL) {
+    //   core.relayUrl = WalletConnectConstants.FALLBACK_RELAY_URL;
+    //   await _connect();
 
-      // If we still didn't connect, reset the relayUrl to the default
-      if (!isConnected) {
-        core.relayUrl = WalletConnectConstants.DEFAULT_RELAY_URL;
-      }
-    }
+    //   // If we still didn't connect, reset the relayUrl to the default
+    //   if (!isConnected) {
+    //     core.relayUrl = WalletConnectConstants.DEFAULT_RELAY_URL;
+    //   }
+    // }
   }
 
   Future<void> _disconnect() async {
-    core.logger.t('RelayClient Internal: Disconnecting from relay');
+    // core.logger.t('RelayClient Internal: Disconnecting from relay');
     _active = false;
 
     final bool shouldBroadcastDisonnect = isConnected;
@@ -237,7 +237,7 @@ class RelayClient implements IRelayClient {
     _connecting = true;
     _active = true;
     final auth = await core.crypto.signJWT(core.relayUrl);
-    core.logger.t('Signed JWT: $auth');
+    // core.logger.t('Signed JWT: $auth');
     try {
       final url = WalletConnectUtils.formatRelayRpcUrl(
         protocol: WalletConnectConstants.CORE_PROTOCOL,
@@ -254,7 +254,7 @@ class RelayClient implements IRelayClient {
         jsonRPC = null;
       }
 
-      core.logger.t('Initializing WebSocket with $url');
+      // core.logger.t('Initializing WebSocket with $url');
       await socketHandler.setup(url: url);
       await socketHandler.connect();
 
@@ -361,10 +361,10 @@ class RelayClient implements IRelayClient {
   /// JSON RPC MESSAGE HANDLERS
 
   Future<bool> handlePublish(String topic, String message) async {
-    core.logger.t('Handling Publish Message: $topic, $message');
+    // core.logger.t('Handling Publish Message: $topic, $message');
     // If we want to ignore the message, stop
     if (await _shouldIgnoreMessageEvent(topic, message)) {
-      core.logger.w('Ignoring Message: $topic, $message');
+      // core.logger.w('Ignoring Message: $topic, $message');
       return false;
     }
 

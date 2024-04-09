@@ -33,4 +33,21 @@ class Sessions extends GenericStore<SessionData> implements ISessions {
 
     await set(topic, info);
   }
+
+  // create by chetan
+  @override
+  Future<void> updateCurrentAccount(String topic,
+      {dynamic currentAccount}) async {
+    checkInitialized();
+
+    SessionData? info = get(topic);
+    if (info == null) {
+      return;
+    }
+    if (currentAccount != null) {
+      info =
+          info.copyWith(sessionProperties: {'currentAccount': currentAccount});
+    }
+    await set(topic, info);
+  }
 }
