@@ -1027,7 +1027,7 @@ class SignEngine implements ISignEngine {
         ),
       );
     } on WalletConnectError catch (err) {
-      core.logger.e('_onSessionProposeRequest Error: $err');
+      // core.logger.e('_onSessionProposeRequest Error: $err');
       await core.pairing.sendError(
         payload.id,
         topic,
