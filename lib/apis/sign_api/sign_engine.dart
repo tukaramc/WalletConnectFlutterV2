@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
+import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/json_rpc_utils.dart';
 import 'package:walletconnect_flutter_v2/apis/core/store/i_generic_store.dart';
 import 'package:walletconnect_flutter_v2/apis/core/verify/models/verify_context.dart';
-import 'package:walletconnect_flutter_v2/apis/models/json_rpc_request.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/i_sessions.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/utils/custom_credentials.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/utils/sign_api_validator_utils.dart';
@@ -310,6 +309,7 @@ class SignEngine implements ISignEngine {
         metadata: metadata,
       ),
       peer: proposal.proposer,
+      sessionProperties: proposal.sessionProperties,
     );
 
     // print('session connect');
@@ -503,6 +503,9 @@ class SignEngine implements ISignEngine {
     String? method,
     List<dynamic> parameters = const [],
   }) async {
+    if (transaction.from == null) {
+      throw Exception('Transaction must include `from` value');
+    }
     final credentials = CustomCredentials(
       signEngine: this,
       topic: topic,
@@ -514,11 +517,13 @@ class SignEngine implements ISignEngine {
       contract: deployedContract,
       function: deployedContract.function(functionName),
       from: credentials.address,
-      parameters: [
-        if (transaction.to != null) transaction.to,
-        if (transaction.value != null) transaction.value!.getInWei,
-        ...parameters,
-      ],
+      value: transaction.value,
+      maxGas: transaction.maxGas,
+      gasPrice: transaction.gasPrice,
+      nonce: transaction.nonce,
+      maxFeePerGas: transaction.maxFeePerGas,
+      maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+      parameters: parameters,
     );
 
     if (chainId.contains(':')) {

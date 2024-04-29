@@ -14,6 +14,7 @@ export 'apis/utils/errors.dart';
 export 'apis/utils/walletconnect_utils.dart';
 export 'apis/models/json_rpc_error.dart';
 export 'apis/models/json_rpc_response.dart';
+export 'apis/models/json_rpc_request.dart';
 export 'apis/utils/constants.dart';
 export 'apis/models/uri_parse_result.dart';
 export 'apis/utils/method_constants.dart';
@@ -55,8 +56,7 @@ export 'apis/web3app/web3app.dart';
 // Libraries
 export 'package:event/event.dart';
 export 'package:logger/logger.dart';
-// export 'package:shared_preferences/shared_preferences.dart';
-export 'package:universal_io/io.dart';
+export 'package:shared_preferences/shared_preferences.dart';
 export 'package:web3dart/web3dart.dart';
 export 'package:web3dart/crypto.dart';
 export 'package:web3dart/json_rpc.dart';

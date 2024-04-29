@@ -13,6 +13,7 @@ import 'package:walletconnect_flutter_v2_wallet/dependencies/key_service/i_key_s
 import 'package:walletconnect_flutter_v2_wallet/models/chain_metadata.dart';
 import 'package:walletconnect_flutter_v2_wallet/utils/constants.dart';
 import 'package:walletconnect_flutter_v2_wallet/utils/dart_defines.dart';
+import 'package:walletconnect_flutter_v2_wallet/utils/eth_utils.dart';
 import 'package:walletconnect_flutter_v2_wallet/widgets/wc_connection_request/wc_auth_request_model.dart';
 import 'package:walletconnect_flutter_v2_wallet/widgets/wc_connection_request/wc_connection_request_widget.dart';
 import 'package:walletconnect_flutter_v2_wallet/widgets/wc_connection_request/wc_session_request_model.dart';
@@ -20,20 +21,21 @@ import 'package:walletconnect_flutter_v2_wallet/widgets/wc_request_widget.dart/w
 
 class Web3WalletService extends IWeb3WalletService {
   final _bottomSheetHandler = GetIt.I<IBottomSheetService>();
-
   Web3Wallet? _web3Wallet;
 
-  /// The list of requests from the dapp
-  /// Potential types include, but aren't limited to:
-  /// [SessionProposalEvent], [AuthRequest]
-  @override
-  ValueNotifier<List<PairingInfo>> pairings =
-      ValueNotifier<List<PairingInfo>>([]);
-  @override
-  ValueNotifier<List<SessionData>> sessions =
-      ValueNotifier<List<SessionData>>([]);
-  @override
-  ValueNotifier<List<StoredCacao>> auth = ValueNotifier<List<StoredCacao>>([]);
+  static final supportedMethods = {
+    'eth_sign',
+    'eth_signTransaction',
+    'eth_signTypedData',
+    'eth_signTypedData_v4',
+    'wallet_switchEthereumChain',
+    'wallet_addEthereumChain',
+  };
+
+  static final requiredMethods = {
+    'personal_sign',
+    'eth_sendTransaction',
+  };
 
   @override
   void create() async {
@@ -80,57 +82,111 @@ class Web3WalletService extends IWeb3WalletService {
     }
 
     // Setup our listeners
-    debugPrint('web3wallet create');
+    debugPrint('[WALLET] [$runtimeType] create');
     _web3Wallet!.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
     _web3Wallet!.core.pairing.onPairingCreate.subscribe(_onPairingCreate);
-    _web3Wallet!.pairings.onSync.subscribe(_onPairingsSync);
     _web3Wallet!.onSessionProposal.subscribe(_onSessionProposal);
+    _web3Wallet!.onSessionConnect.subscribe(_onSessionConnect);
     _web3Wallet!.onSessionProposalError.subscribe(_onSessionProposalError);
     _web3Wallet!.onAuthRequest.subscribe(_onAuthRequest);
-    _web3Wallet!.core.relayClient.onRelayClientError
-        .subscribe(_onRelayClientError);
+    _web3Wallet!.core.relayClient.onRelayClientError.subscribe(
+      _onRelayClientError,
+    );
+    _web3Wallet!.core.relayClient.onRelayClientMessage.subscribe(
+      _onRelayClientMessage,
+    );
   }
 
   @override
   Future<void> init() async {
     // Await the initialization of the web3wallet
-    debugPrint('web3wallet init');
+    debugPrint('[$runtimeType] [WALLET] init');
     await _web3Wallet!.init();
-
-    pairings.value = _web3Wallet!.pairings.getAll();
-    sessions.value = _web3Wallet!.sessions.getAll();
-    auth.value = _web3Wallet!.completeRequests.getAll();
   }
 
   @override
   FutureOr onDispose() {
-    debugPrint('web3wallet dispose');
+    debugPrint('[$runtimeType] [WALLET] dispose');
     _web3Wallet!.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
-    _web3Wallet!.pairings.onSync.unsubscribe(_onPairingsSync);
+    _web3Wallet!.core.pairing.onPairingCreate.unsubscribe(_onPairingCreate);
     _web3Wallet!.onSessionProposal.unsubscribe(_onSessionProposal);
+    _web3Wallet!.onSessionConnect.unsubscribe(_onSessionConnect);
     _web3Wallet!.onSessionProposalError.unsubscribe(_onSessionProposalError);
     _web3Wallet!.onAuthRequest.unsubscribe(_onAuthRequest);
-    _web3Wallet!.core.relayClient.onRelayClientError
-        .unsubscribe(_onRelayClientError);
+    _web3Wallet!.core.relayClient.onRelayClientError.unsubscribe(
+      _onRelayClientError,
+    );
+    _web3Wallet!.core.relayClient.onRelayClientMessage.unsubscribe(
+      _onRelayClientMessage,
+    );
   }
 
   @override
-  Web3Wallet getWeb3Wallet() {
-    return _web3Wallet!;
+  Web3Wallet get web3wallet => _web3Wallet!;
+
+  Map<String, Namespace> _generateNamespaces(
+    Map<String, Namespace>? approvedNamespaces,
+    ChainType chainType,
+  ) {
+    final constructedNS = Map<String, Namespace>.from(approvedNamespaces ?? {});
+    constructedNS[chainType.name] = constructedNS[chainType.name]!.copyWith(
+      methods: [
+        ...constructedNS[chainType.name]!.methods,
+        ...supportedMethods,
+      ],
+    );
+    return constructedNS;
   }
 
-  void _onPairingsSync(StoreSyncEvent? args) {
+  void _onSessionProposal(SessionProposalEvent? args) async {
+    debugPrint('[$runtimeType] [WALLET] _onSessionProposal $args');
     if (args != null) {
-      pairings.value = _web3Wallet!.pairings.getAll();
+      // generatedNamespaces is constructed based on registered methods handlers
+      // so if you want to handle requests using onSessionRequest event then you would need to manually add that method in the approved namespaces
+      final approvedNS = _generateNamespaces(
+        args.params.generatedNamespaces!,
+        ChainType.eip155,
+      );
+      final proposalData = args.params.copyWith(
+        generatedNamespaces: approvedNS,
+      );
+      debugPrint('[WALLET] proposalData $proposalData');
+      final approved = await _bottomSheetHandler.queueBottomSheet(
+        widget: WCRequestWidget(
+          child: WCConnectionRequestWidget(
+            wallet: _web3Wallet!,
+            sessionProposal: WCSessionRequestModel(
+              request: proposalData,
+              verifyContext: args.verifyContext,
+            ),
+          ),
+        ),
+      );
+
+      if (approved == true) {
+        await _web3Wallet!.approveSession(id: args.id, namespaces: approvedNS);
+      } else {
+        final error = Errors.getSdkError(Errors.USER_REJECTED);
+        await _web3Wallet!.rejectSession(id: args.id, reason: error);
+        await _web3Wallet!.core.pairing.disconnect(
+          topic: args.params.pairingTopic,
+        );
+
+        // TODO this should be triggered on _onRelayClientMessage
+        final scheme = args.params.proposer.metadata.redirect?.native ?? '';
+        DeepLinkHandler.goTo(
+          scheme,
+          modalTitle: 'Error',
+          modalMessage: 'User rejected',
+          success: false,
+        );
+      }
     }
   }
 
-  void _onRelayClientError(ErrorEvent? args) {
-    debugPrint('[$runtimeType] _onRelayClientError ${args?.error}');
-  }
-
   void _onSessionProposalError(SessionProposalErrorEvent? args) async {
-    debugPrint('[$runtimeType] _onSessionProposalError $args');
+    debugPrint('[$runtimeType] [WALLET] _onSessionProposalError $args');
+    DeepLinkHandler.waiting.value = false;
     if (args != null) {
       String errorMessage = args.error.message;
       if (args.error.code == 5100) {
@@ -166,81 +222,54 @@ class Web3WalletService extends IWeb3WalletService {
     }
   }
 
-  Map<String, Namespace> _generateNamespaces(
-    Map<String, Namespace>? approvedNamespaces,
-    ChainType chainType,
-  ) {
-    //
-    final constructedNS = Map<String, Namespace>.from(approvedNamespaces ?? {});
-    constructedNS[chainType.name] = constructedNS[chainType.name]!.copyWith(
-      methods: [
-        'personal_sign',
-        ...constructedNS[chainType.name]!.methods,
-      ],
-    );
-    return constructedNS;
-  }
-
-  void _onSessionProposal(SessionProposalEvent? args) async {
-    if (args != null) {
-      // generatedNamespaces is constructed based on registered methods handlers
-      // so if you want to handle requests using onSessionRequest event then you would need to manually add that method in the approved namespaces
-      final approvedNS = _generateNamespaces(
-        args.params.generatedNamespaces!,
-        ChainType.eip155,
-      );
-      final proposalData = args.params.copyWith(
-        generatedNamespaces: approvedNS,
-      );
-      final approved = await _bottomSheetHandler.queueBottomSheet(
-        widget: WCRequestWidget(
-          child: WCConnectionRequestWidget(
-            wallet: _web3Wallet!,
-            sessionProposal: WCSessionRequestModel(
-              request: proposalData,
-              verifyContext: args.verifyContext,
-            ),
-          ),
-        ),
-      );
-
-      if (approved == true) {
-        _web3Wallet!.approveSession(
-          id: args.id,
-          namespaces: approvedNS,
-        );
-        final scheme = args.params.proposer.metadata.redirect?.native ?? '';
-        DeepLinkHandler.goTo(scheme, delay: 300);
+  void _onRelayClientMessage(MessageEvent? event) async {
+    if (event != null) {
+      final jsonObject = await EthUtils.decodeMessageEvent(event);
+      debugPrint('[$runtimeType] [WALLET] _onRelayClientMessage $jsonObject');
+      if (jsonObject is JsonRpcRequest) {
+        if (jsonObject.method != 'wc_sessionDelete' &&
+            jsonObject.method != 'wc_pairingDelete' &&
+            jsonObject.method != 'wc_sessionPing') {
+          DeepLinkHandler.waiting.value = true;
+        }
       } else {
-        _web3Wallet!.rejectSession(
-          id: args.id,
-          reason: Errors.getSdkError(Errors.USER_REJECTED),
-        );
-        _web3Wallet!.core.pairing.disconnect(
-          topic: args.params.pairingTopic,
-        );
-
-        final scheme = args.params.proposer.metadata.redirect?.native ?? '';
+        final session = _web3Wallet!.sessions.get(event.topic);
+        final scheme = session?.peer.metadata.redirect?.native ?? '';
+        final isSuccess = jsonObject.result != null;
+        final title = isSuccess ? null : 'Error';
+        final message = isSuccess ? null : jsonObject.error?.message ?? '';
         DeepLinkHandler.goTo(
           scheme,
-          delay: 300,
-          modalTitle: 'Error',
-          modalMessage: 'User rejected',
-          success: false,
+          modalTitle: title,
+          modalMessage: message,
+          success: isSuccess,
         );
       }
     }
   }
 
+  void _onSessionConnect(SessionConnect? args) {
+    debugPrint('[$runtimeType] [WALLET] _onSessionConnect $args');
+    if (args != null) {
+      final scheme = args.session.peer.metadata.redirect?.native ?? '';
+      DeepLinkHandler.goTo(scheme);
+    }
+  }
+
+  void _onRelayClientError(ErrorEvent? args) {
+    debugPrint('[$runtimeType] [WALLET] _onRelayClientError ${args?.error}');
+  }
+
   void _onPairingInvalid(PairingInvalidEvent? args) {
-    debugPrint('[$runtimeType] _onPairingInvalid $args');
+    debugPrint('[$runtimeType] [WALLET] _onPairingInvalid $args');
   }
 
   void _onPairingCreate(PairingEvent? args) {
-    debugPrint('[$runtimeType] _onPairingCreate $args');
+    debugPrint('[$runtimeType] [WALLET] _onPairingCreate $args');
   }
 
   Future<void> _onAuthRequest(AuthRequest? args) async {
+    debugPrint('[$runtimeType] [WALLET] _onAuthRequest $args');
     if (args != null) {
       final chainKeys = GetIt.I<IKeyService>().getKeysForChain('eip155:1');
       // Create the message to be signed
@@ -266,14 +295,6 @@ class Web3WalletService extends IWeb3WalletService {
           ),
         );
 
-        // EthPrivateKey credentials =
-        //     EthPrivateKey.fromHex(chainKeys.first.privateKey);
-        // final String sig = utf8.decode(
-        //   credentials.signPersonalMessageToUint8List(
-        //     Uint8List.fromList(message.codeUnits),
-        //   ),
-        // );
-
         final String sig = EthSigUtil.signPersonalMessage(
           message: Uint8List.fromList(message.codeUnits),
           privateKey: chainKeys.first.privateKey,
@@ -287,13 +308,21 @@ class Web3WalletService extends IWeb3WalletService {
             s: sig,
           ),
         );
+        final scheme = args.requester.metadata.redirect?.native ?? '';
+        DeepLinkHandler.goTo(scheme);
       } else {
         await _web3Wallet!.respondAuthRequest(
           id: args.id,
           iss: iss,
-          error: Errors.getSdkError(
-            Errors.USER_REJECTED_AUTH,
-          ),
+          error: Errors.getSdkError(Errors.USER_REJECTED_AUTH),
+        );
+        // TODO this should be triggered on _onRelayClientMessage
+        final scheme = args.requester.metadata.redirect?.native ?? '';
+        DeepLinkHandler.goTo(
+          scheme,
+          modalTitle: 'Error',
+          modalMessage: 'User rejected',
+          success: false,
         );
       }
     }

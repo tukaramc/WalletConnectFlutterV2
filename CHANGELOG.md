@@ -1,3 +1,8 @@
+## 2.2.3
+
+- Full web support
+- Fix on `requestWriteContract()` function where parameters were not parsed properly
+
 ## 2.2.2
 
 - Fix on requestReadContract. Fixes issues https://github.com/WalletConnect/WalletConnectFlutterV2/issues/278 and https://github.com/WalletConnect/Web3ModalFlutter/issues/99
