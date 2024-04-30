@@ -6,6 +6,7 @@ import 'package:walletconnect_flutter_v2/apis/core/verify/i_verify.dart';
 import 'package:walletconnect_flutter_v2/apis/core/verify/models/verify_context.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/constants.dart';
 
+
 class Verify implements IVerify {
   final ICore _core;
   final IHttpClient _httpClient;
