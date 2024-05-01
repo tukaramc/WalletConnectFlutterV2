@@ -108,26 +108,26 @@ class RelayClient implements IRelayClient {
     required int ttl,
     required int tag,
   }) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    Map<String, dynamic> data = {
-      'message': message,
-      'ttl': ttl,
-      'topic': topic,
-      'tag': tag,
-    };
+    // Map<String, dynamic> data = {
+    //   'message': message,
+    //   'ttl': ttl,
+    //   'topic': topic,
+    //   'tag': tag,
+    // };
 
-    try {
-      await messageTracker.recordMessageEvent(topic, message);
-      var _ = await _sendJsonRpcRequest(
-        _buildMethod(JSON_RPC_PUBLISH),
-        data,
-        JsonRpcUtils.payloadId(entropy: 6),
-      );
-    } catch (e) {
-      // print(e);
-      onRelayClientError.broadcast(ErrorEvent(e));
-    }
+    // try {
+    //   await messageTracker.recordMessageEvent(topic, message);
+    //   var _ = await _sendJsonRpcRequest(
+    //     _buildMethod(JSON_RPC_PUBLISH),
+    //     data,
+    //     JsonRpcUtils.payloadId(entropy: 6),
+    //   );
+    // } catch (e) {
+    //   // print(e);
+    //   onRelayClientError.broadcast(ErrorEvent(e));
+    // }
   }
 
   @override
