@@ -130,7 +130,7 @@ class Pairing implements IPairing {
     );
 
     await pairings.set(topic, pairing);
-    await core.relayClient.subscribe(topic: topic);
+    // await core.relayClient.subscribe(topic: topic);
     await core.expirer.set(topic, expiry);
 
     return CreateResponse(
@@ -193,7 +193,7 @@ class Pairing implements IPairing {
 
     await pairings.set(topic, pairing);
     await core.crypto.setSymKey(symKey, overrideTopic: topic);
-    await core.relayClient.subscribe(topic: topic);
+    // await core.relayClient.subscribe(topic: topic);
     await core.expirer.set(topic, expiry);
 
     onPairingCreate.broadcast(
@@ -539,13 +539,13 @@ class Pairing implements IPairing {
     for (final PairingInfo pairing in activePairings) {
       if (pairing.active) {
         // print('Resubscribing to topic: ${pairing.topic}');
-        await core.relayClient.subscribe(topic: pairing.topic);
+        // await core.relayClient.subscribe(topic: pairing.topic);
       }
     }
   }
 
   Future<void> _deletePairing(String topic, bool expirerHasDeleted) async {
-    await core.relayClient.unsubscribe(topic: topic);
+    // await core.relayClient.unsubscribe(topic: topic);
     await pairings.delete(topic);
     await core.crypto.deleteSymKey(topic);
     if (expirerHasDeleted) {
@@ -601,8 +601,8 @@ class Pairing implements IPairing {
   Map<String, RegisteredFunction> routerMapRequest = {};
 
   void _registerRelayEvents() {
-    core.relayClient.onRelayClientConnect.subscribe(_onRelayConnect);
-    core.relayClient.onRelayClientMessage.subscribe(_onMessageEvent);
+    // core.relayClient.onRelayClientConnect.subscribe(_onRelayConnect);
+    // core.relayClient.onRelayClientMessage.subscribe(_onMessageEvent);
 
     register(
       method: MethodConstants.WC_PAIRING_PING,

@@ -217,7 +217,7 @@ class SignEngine implements ISignEngine {
       // Delete the proposal, we are done with it
       await _deleteProposal(requestId);
 
-      await core.relayClient.subscribe(topic: sessionTopic);
+      // await core.relayClient.subscribe(topic: sessionTopic);
       await core.pairing.activate(topic: topic);
     } catch (e) {
       // Get the completer and finish it with an error
@@ -287,8 +287,6 @@ class SignEngine implements ISignEngine {
       topic: proposal.pairingTopic,
       metadata: proposal.proposer.metadata,
     );
-
-    await core.relayClient.subscribe(topic: sessionTopic);
 
     final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.SEVEN_DAYS,
@@ -781,7 +779,7 @@ class SignEngine implements ISignEngine {
     // Subscribe to all the sessions
     for (final SessionData session in sessions.getAll()) {
       // print('Session: subscribing to ${session.topic}');
-      await core.relayClient.subscribe(topic: session.topic);
+      // await core.relayClient.subscribe(topic: session.topic);
     }
   }
 
@@ -804,7 +802,7 @@ class SignEngine implements ISignEngine {
     if (session == null) {
       return;
     }
-    await core.relayClient.unsubscribe(topic: topic);
+    // await core.relayClient.unsubscribe(topic: topic);
 
     await sessions.delete(topic);
     await core.crypto.deleteKeyPair(session.self.publicKey);
@@ -1407,7 +1405,7 @@ class SignEngine implements ISignEngine {
   /// ---- Event Registers ---- ///
 
   void _registerInternalEvents() {
-    core.relayClient.onRelayClientConnect.subscribe(_onRelayConnect);
+    // core.relayClient.onRelayClientConnect.subscribe(_onRelayConnect);
     core.expirer.onExpire.subscribe(_onExpired);
     core.pairing.onPairingDelete.subscribe(_onPairingDelete);
     core.pairing.onPairingExpire.subscribe(_onPairingDelete);

@@ -321,7 +321,7 @@ class RelayClient implements IRelayClient {
           code == 1002 ||
           code == 10002 ||
           code == 1005) {
-        await connect();
+        // await connect();
       } else {
         await disconnect();
         final errorReason = code == 3000
@@ -419,7 +419,7 @@ class RelayClient implements IRelayClient {
     }
     // If we aren't connected but should be (active), try to (re)connect and then send the message
     else if (!isConnected && _active) {
-      await connect();
+      // await connect();
     }
     // In all other cases return null
     else {
