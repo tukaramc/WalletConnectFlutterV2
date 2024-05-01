@@ -21,6 +21,7 @@ dependencies:
   eth_sig_util: ^0.0.9
   get_it_mixin: ^4.0.0
   package_info_plus: ^7.0.0
+  shared_preferences: ^2.2.3
   convert: ^3.0.1
   url_launcher: ^6.2.2
   walletconnect_flutter_v2:

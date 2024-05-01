@@ -73,16 +73,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     blurred: true,
                   ),
                   const SizedBox(height: 12.0),
-                  FutureBuilder<SharedPreferences>(
-                    future: SharedPreferences.getInstance(),
-                    builder: (context, snapshot) {
-                      return _DataContainer(
-                        title: 'Seed phrase',
-                        data: snapshot.data?.getString('mnemonic') ?? '',
-                        blurred: true,
-                      );
-                    },
-                  ),
+                  // FutureBuilder<SharedPreferences>(
+                  //   future: SharedPreferences.getInstance(),
+                  //   builder: (context, snapshot) {
+                  //     return _DataContainer(
+                  //       title: 'Seed phrase',
+                  //       data: snapshot.data?.getString('mnemonic') ?? '',
+                  //       blurred: true,
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
             ),

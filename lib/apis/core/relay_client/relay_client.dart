@@ -168,18 +168,18 @@ class RelayClient implements IRelayClient {
 
   @override
   Future<void> connect({String? relayUrl}) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    core.logger.i('RelayClient: Connecting to relay');
+    // core.logger.i('RelayClient: Connecting to relay');
 
-    await _connect(relayUrl: relayUrl);
+    // await _connect(relayUrl: relayUrl);
   }
 
   @override
   Future<void> disconnect() async {
     _checkInitialized();
 
-    core.logger.i('RelayClient: Disconnecting from relay');
+    // core.logger.i('RelayClient: Disconnecting from relay');
 
     await _disconnect();
   }
@@ -237,7 +237,7 @@ class RelayClient implements IRelayClient {
     _connecting = true;
     _active = true;
     final auth = await core.crypto.signJWT(core.relayUrl);
-    core.logger.t('Signed JWT: $auth');
+    // core.logger.t('Signed JWT: $auth');
     try {
       final url = WalletConnectUtils.formatRelayRpcUrl(
         protocol: WalletConnectConstants.CORE_PROTOCOL,
@@ -254,7 +254,7 @@ class RelayClient implements IRelayClient {
         jsonRPC = null;
       }
 
-      core.logger.t('Initializing WebSocket with $url');
+      // core.logger.t('Initializing WebSocket with $url');
       await socketHandler.setup(url: url);
       await socketHandler.connect();
 
@@ -361,10 +361,10 @@ class RelayClient implements IRelayClient {
   /// JSON RPC MESSAGE HANDLERS
 
   Future<bool> handlePublish(String topic, String message) async {
-    core.logger.t('Handling Publish Message: $topic, $message');
+    // core.logger.t('Handling Publish Message: $topic, $message');
     // If we want to ignore the message, stop
     if (await _shouldIgnoreMessageEvent(topic, message)) {
-      core.logger.w('Ignoring Message: $topic, $message');
+      // core.logger.w('Ignoring Message: $topic, $message');
       return false;
     }
 
