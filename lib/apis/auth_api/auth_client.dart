@@ -56,7 +56,7 @@ class AuthClient implements IAuthClient {
     final client = AuthClient(
       core: Core(
         projectId: projectId,
-        // relayUrl: relayUrl,
+        relayUrl: relayUrl,
         memoryStore: memoryStore,
         httpClient: httpClient,
         logLevel: logLevel,

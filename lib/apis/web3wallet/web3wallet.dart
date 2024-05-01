@@ -22,7 +22,7 @@ class Web3Wallet implements IWeb3Wallet {
     final client = Web3Wallet(
       core: Core(
         projectId: projectId,
-        // relayUrl: relayUrl,
+        relayUrl: relayUrl,
         pushUrl: pushUrl,
         memoryStore: memoryStore,
         logLevel: logLevel,

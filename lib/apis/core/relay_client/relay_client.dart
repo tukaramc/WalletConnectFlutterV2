@@ -95,7 +95,7 @@ class RelayClient implements IRelayClient {
     await topicMap.init();
 
     // Setup the json RPC server
-    await _connect();
+    // await _connect();
     _subscribeToHeartbeat();
 
     _initialized = true;
@@ -168,11 +168,11 @@ class RelayClient implements IRelayClient {
 
   @override
   Future<void> connect({String? relayUrl}) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    core.logger.i('RelayClient: Connecting to relay');
+    // core.logger.i('RelayClient: Connecting to relay');
 
-    await _connect(relayUrl: relayUrl);
+    // await _connect(relayUrl: relayUrl);
   }
 
   @override

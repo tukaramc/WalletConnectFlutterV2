@@ -78,7 +78,7 @@ class SignClient implements ISignClient {
     final client = SignClient(
       core: Core(
         projectId: projectId,
-        // relayUrl: relayUrl,
+        relayUrl: relayUrl,
         memoryStore: memoryStore,
         logLevel: logLevel,
       ),

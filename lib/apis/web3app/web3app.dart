@@ -30,7 +30,7 @@ class Web3App implements IWeb3App {
     final client = Web3App(
       core: Core(
         projectId: projectId,
-        // relayUrl: relayUrl,
+        relayUrl: relayUrl,
         memoryStore: memoryStore,
         logLevel: logLevel,
         httpClient: httpClient,
