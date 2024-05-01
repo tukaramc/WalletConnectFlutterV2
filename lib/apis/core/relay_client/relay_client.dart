@@ -132,11 +132,11 @@ class RelayClient implements IRelayClient {
 
   @override
   Future<String> subscribe({required String topic}) async {
-    _checkInitialized();
+    // _checkInitialized();
 
-    pendingSubscriptions[topic] = _onSubscribe(topic);
+    // pendingSubscriptions[topic] = _onSubscribe(topic);
 
-    return await pendingSubscriptions[topic];
+    return '';
   }
 
   @override
